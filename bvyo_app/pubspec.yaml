@@ -1,0 +1,46 @@
+name: flutter_bvyo
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+      sdk: flutter
+
+  webdav_client: ^1.1.3
+  cupertino_icons: ^1.0.8
+  image_picker: ^1.0.4
+  http: ^1.3.0   # WebDav veya HTTP bağlantılarını yönetmek için
+  firebase_core: ^2.25.4
+  firebase_database: ^10.4.0
+  cloud_firestore: ^4.13.0
+  firebase_storage: ^11.6.0
+  firebase_auth: ^4.17.4
+  googleapis: ^11.0.0
+  googleapis_auth: ^1.4.0
+  google_sign_in: ^5.0.7
+
+
+  path: ^1.8.3
+  path_provider: ^2.1.2
+  mime: ^1.0.4
+
+  # Eklemen gereken kütüphaneler:
+  google_fonts: ^6.1.0
+  form_field_validator: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/bvyo-f3df0-3fb89df0ad47.json
+
+    
