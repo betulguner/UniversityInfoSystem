@@ -1,0 +1,58 @@
+{
+  "project_info": {
+    "project_number": "408689466375",
+    "project_id": "bvyo-f3df0",
+    "storage_bucket": "bvyo-f3df0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408689466375:android:7d6098f3236e641d079ea2",
+        "android_client_info": {
+          "package_name": "com.example.bvyo_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840794339484-1fmillk4mvq6aa4g15u36kih58nm7k7e.apps.googleusercontent.com",
+          "client_type": 1
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUYmluuBsUd1a4j6AwrZ2VilWKaxu-arQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408689466375:android:29e45c33b3ce8226079ea2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_bvyo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840794339484-1fmillk4mvq6aa4g15u36kih58nm7k7e.apps.googleusercontent.com",
+          "client_type": 1
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUYmluuBsUd1a4j6AwrZ2VilWKaxu-arQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
