@@ -13,7 +13,20 @@ class DriveUploader {
   DriveUploader({
     required this.credentialsFilePath,
     required this.folderId,
+    
   });
+
+  Future<http.Client> _getHttpClient() async {
+    final accountCredentials = auth.ServiceAccountCredentials.fromJson(
+        await File(credentialsFilePath).readAsString());
+
+    final client = await auth.clientViaServiceAccount(
+      accountCredentials,
+      [drive.DriveApi.driveFileScope],
+    );
+
+    return client;
+  }
 
   Future<drive.File> uploadImage(File image, {String? fileName}) async {
     final accountCredentials = auth.ServiceAccountCredentials.fromJson(
@@ -41,6 +54,44 @@ class DriveUploader {
 
     return uploadedFile;
   }
+
+  Future<void> deleteFile(String fileId) async {
+    final client = await _getHttpClient();
+    final driveApi = drive.DriveApi(client);
+    
+    try {
+      await driveApi.files.delete(fileId);
+    } catch (e) {
+      throw Exception('Failed to delete file from Drive: $e');
+    }
+  }
+
+  Future<String> getImageUrl(String fileId) async {
+    final client = await _getHttpClient();
+    final driveApi = drive.DriveApi(client);
+    
+    try {
+      // Get the file metadata
+      final file = await driveApi.files.get(fileId,
+          $fields: 'webContentLink,webViewLink') as drive.File;
+
+      // The webContentLink needs to be modified to allow direct viewing
+      String? directLink = file.webContentLink;
+      if (directLink != null) {
+        // Convert the download link to a view link
+        directLink = directLink.replaceAll('&export=download', '');
+        return directLink;
+      }
+      
+      if (file.webViewLink != null) {
+        return file.webViewLink!;
+      }
+
+      throw Exception('No viewable link found for file');
+    } catch (e) {
+      throw Exception('Failed to get image URL from Drive: $e');
+    }
+  }
 }
 
 
@@ -48,6 +99,3 @@ class DriveUploader {
 
 
 // https://drive.google.com/drive/folders/1yP7uUxxDSujh1JJMgQRpMsBAyMw5DRir?usp=sharing
-
-
-

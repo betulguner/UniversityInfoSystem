@@ -156,7 +156,6 @@ class _SecondPageState extends State<SecondPage> {
         selectedClassType = null;
         selectedImage = null;
       });
-    
 
       // Ana sayfaya yönlendir
       Navigator.of(context).pushAndRemoveUntil(
@@ -399,6 +398,7 @@ class _SecondPageState extends State<SecondPage> {
               // Room Name Field
               TextField(
                 controller: _roomNameController,
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Oda Kapasitesi',
                   border: OutlineInputBorder(

@@ -1,14 +1,15 @@
+// main.dart
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // Firebase core
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'firebase_options.dart'; // Firebase yapılandırma dosyası
-import 'home_page.dart'; // Giriş sonrası yönlendirme sayfası
+import 'firebase_options.dart';
+import 'welcome_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Firebase başlatma
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
@@ -52,86 +53,53 @@ class _LoginPageState extends State<LoginPage> {
       String email = _emailController.text.trim();
       String password = _passwordController.text.trim();
 
-      print('Giriş denemesi: $email'); // Debug için log
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
 
-      // Firestore'dan kullanıcı bilgilerini kontrol et
-      try {
-        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('email', isEqualTo: email)
-            .get();
-
-        print('Firestore sorgu sonucu: ${userSnapshot.docs.length} kullanıcı bulundu'); // Debug için log
-
-        if (userSnapshot.docs.isEmpty) {
-          throw FirebaseAuthException(
-            code: 'user-not-found',
-            message: 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.',
-          );
-        }
-
-        // Firebase Authentication ile giriş yap
-        print('Firebase Auth ile giriş deneniyor...'); // Debug için log
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
+      if (userSnapshot.docs.isEmpty) {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.',
         );
-        print('Giriş başarılı!'); // Debug için log
+      }
 
-        // Başarılı giriş durumunda ana sayfaya yönlendir
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        }
-      } catch (firestoreError) {
-        print('Firestore hatası: $firestoreError'); // Debug için log
-        throw firestoreError;
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomePage()),
+        );
       }
     } catch (e) {
-      print('Hata oluştu: $e'); // Debug için log
-      
-      if (mounted) {
-        String errorMessage = 'Giriş başarısız';
-        if (e is FirebaseAuthException) {
-          switch (e.code) {
-            case 'user-not-found':
-              errorMessage = 'Kullanıcı bulunamadı';
-              break;
-            case 'wrong-password':
-              errorMessage = 'Geçersiz şifre';
-              break;
-            case 'invalid-email':
-              errorMessage = 'Geçersiz e-posta adresi';
-              break;
-            case 'user-disabled':
-              errorMessage = 'Bu hesap devre dışı bırakılmış';
-              break;
-            case 'too-many-requests':
-              errorMessage = 'Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin';
-              break;
-            default:
-              errorMessage = 'Bir hata oluştu: ${e.message}';
-          }
-        } else if (e is FirebaseException) {
-          errorMessage = 'Firebase hatası: ${e.message}';
+      String errorMessage = 'Giriş başarısız';
+      if (e is FirebaseAuthException) {
+        switch (e.code) {
+          case 'user-not-found':
+            errorMessage = 'Kullanıcı bulunamadı';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Geçersiz şifre';
+            break;
+          default:
+            errorMessage = 'Bir hata oluştu: ${e.message}';
         }
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -181,10 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
                       : const Text('Giriş Yap', style: TextStyle(color: Colors.white)),
                 ),

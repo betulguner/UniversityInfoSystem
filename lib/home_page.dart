@@ -2,13 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/second_page.dart';
 import 'room_detail_page.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'services/drive_uploader.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<void> _deleteRoom(BuildContext context, String docId) async {
     try {
+      // Get the document data before deleting
+      final docSnapshot = await FirebaseFirestore.instance.collection('oda_kayitlari').doc(docId).get();
+      final data = docSnapshot.data();
+      
+      // Delete from Drive if driveFileId exists
+      if (data != null && data['driveFileId'] != null) {
+        try {
+          final credentialsPath = await getServiceAccountPath();
+          final driveUploader = DriveUploader(
+            credentialsFilePath: credentialsPath,
+            folderId: '1yP7uUxxDSujh1JJMgQRpMsBAyMw5DRir',
+          );
+          await driveUploader.deleteFile(data['driveFileId']);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Drive\'dan fotoğraf silme hatası: $e')),
+          );
+        }
+      }
+
+      // Delete from Firestore
       await FirebaseFirestore.instance.collection('oda_kayitlari').doc(docId).delete();
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kayıt silindi')),
       );
@@ -17,6 +43,13 @@ class HomePage extends StatelessWidget {
         SnackBar(content: Text('Silme hatası: $e')),
       );
     }
+  }
+
+  Future<String> getServiceAccountPath() async {
+    final byteData = await rootBundle.load('assets/bvyo-f3df0-3fb89df0ad47.json');
+    final file = File('${(await getTemporaryDirectory()).path}/service_account.json');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file.path;
   }
 
   void _showDeleteConfirmation(BuildContext context, String docId) async {
